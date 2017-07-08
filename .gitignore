@@ -1,3 +1,13 @@
+# Tensorflow logs / datasets / results
+logs/
+datasets/
+results/
+
+# Temporary files
+*.zip
+*.swp
+*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
