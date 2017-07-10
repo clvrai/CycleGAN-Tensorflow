@@ -2,6 +2,7 @@ import tensorflow as tf
 
 
 def _norm(input, is_train, reuse=True, norm=None):
+    assert norm in ['instance', 'batch', None]
     if norm == 'instance':
         with tf.variable_scope('instance_norm', reuse=reuse):
             eps = 1e-5
@@ -27,6 +28,7 @@ def _norm(input, is_train, reuse=True, norm=None):
     return out
 
 def _activation(input, activation=None):
+    assert activation in ['reul', 'leaky', 'tanh', 'sigmoid', None]
     if activation == 'relu':
         return tf.nn.relu(input)
     elif activation == 'leaky':
@@ -38,7 +40,7 @@ def _activation(input, activation=None):
     else:
         return input
 
-def conv2d(input, num_filters, filter_size=4, stride=1, reuse=False,
+def conv2d(input, num_filters, filter_size, stride, reuse=False,
            pad='SAME', dtype=tf.float32, bias=False):
     stride_shape = [1, stride, stride, 1]
     filter_shape = [filter_size, filter_size, input.get_shape()[3], num_filters]
@@ -49,19 +51,21 @@ def conv2d(input, num_filters, filter_size=4, stride=1, reuse=False,
         x = tf.pad(input, [[0,0],[p,p],[p,p],[0,0]], 'REFLECT')
         conv = tf.nn.conv2d(x, w, stride_shape, padding='VALID')
     else:
-        conv = tf.nn.conv2d(input, w, stride_shape, padding='SAME')
+        assert pad in ['SAME', 'VALID']
+        conv = tf.nn.conv2d(input, w, stride_shape, padding=pad)
 
     if bias:
         b = tf.get_variable('b', [1,1,1,num_filters], initializer=tf.constant_initializer(0.0))
         conv = conv + b
     return conv
 
-def conv2d_transpose(input, num_filters, filter_size=3, stride=1, reuse=False,
+def conv2d_transpose(input, num_filters, filter_size, stride, reuse,
                      pad='SAME', dtype=tf.float32):
+    assert pad == 'SAME'
     n, h, w, c = input.get_shape().as_list()
     stride_shape = [1, stride, stride, 1]
     filter_shape = [filter_size, filter_size, num_filters, c]
-    output_shape = [n, h * 2, w * 2, num_filters]
+    output_shape = [n, h * stride, w * stride, num_filters]
 
     w = tf.get_variable('w', filter_shape, dtype, tf.random_normal_initializer(0.0, 0.02))
     deconv = tf.nn.conv2d_transpose(input, w, output_shape, stride_shape, pad)
