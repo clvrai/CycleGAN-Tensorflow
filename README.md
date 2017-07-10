@@ -2,7 +2,7 @@
 
 As part of the implementation series of [Joseph Lim's group at USC](http://csail.mit.edu/~lim), our motivation is to accelerate (or sometimes delay) research in the AI community by promoting open-source projects. To this end, we implement state-of-the-art research papers, and publicly share them with concise reports. Please visit our [group github site](https://github.com/gitlimlab) for other projects.
 
-This project is implemented by [Youngwoon Lee](https://github.com/youngwoon) and the codes have been reviewed by Honghua Dong before being published.
+This project is implemented by [Youngwoon Lee](https://github.com/youngwoon) and the codes have been reviewed by [Honghua Dong](https://github.com/dhh1995) before being published.
 
 ## Description
 
@@ -10,7 +10,7 @@ This repo is a [Tensorflow](https://www.tensorflow.org/) implementation of Cycle
 
 This paper presents a framework for converting an image from one domain (e.g., zebra) to another domain (e.g., horse) and vice versa. It transforms a given image by finding an one-to-one mapping between unpaired data from two domains.
 
-The framework consists of two generators ($G\_{a \rightarrow b}$, $G\_{b \rightarrow a}$) and two discriminators ($D\_a$, $D\_b$). The generator $G\_{a \rightarrow b}$ ($G\_{b \rightarrow a}$) converts an image in domain $a$ ($b$) to that of domain $b$ ($a$) and the discriminator$D\_a$ ($D\_b$) verifies whether the given image is an image from domain $a$ or not. When training these two pairs of GANs, the cycle-consistent loss, which is a sum of reconstruction errors ($a \rightarrow b \rightarrow a$ and $b \rightarrow a \rightarrow b$), is added to the adversarial loss. Without one-to-one mapping between two domains $a$ and $b$, the framework cannot reconstruct original image and it leads to the large cycle-consistent loss. Therefore, the cycle-consistent loss prevents the mode collapse problem by imposing one-to-one mapping between two domains.
+The framework consists of two generators (*G[a-b]*, *G[b-a]*) and two discriminators (*D[a]*, *D[b]*). The generator *G[a-b]* (*G[b-a]*) converts an image in domain *a* (*b*) to that of domain *b* (*a*) and the discriminator *D[a]* (*D[b]*) verifies whether the given image is an image from domain *a* (*b*) or not. When training these two pairs of GANs, the cycle-consistent loss, which is a sum of reconstruction errors (*a-b-a* and *b-a-b*), is added to the adversarial loss. Without one-to-one mapping between two domains *a* and *b*, the framework cannot reconstruct original image and it leads to the large cycle-consistent loss. Therefore, the cycle-consistent loss prevents the mode collapse problem by imposing one-to-one mapping between two domains.
 
 ![paper-figure](assets/paper-figure.png)
 
@@ -33,7 +33,7 @@ The framework consists of two generators ($G\_{a \rightarrow b}$, $G\_{b \righta
 $ python cycle-gan.py --task apple2orange --image_size 256
 ```
 
-- To reconstruct 256x256 images, set `—image_size` to 256, otherwise it will resize to and generate images in 128x128. 
+- To reconstruct 256x256 images, set `--image_size` to 256, otherwise it will resize to and generate images in 128x128.
   Once training is ended, it will convert images in the test set to another domain. The test results will be saved to `./results/apple2orange_2017-07-07_07-07-07/`.
 - Available datasets: apple2orange, summer2winter_yosemite, horse2zebra, monet2photo, cezanne2photo, ukiyoe2photo, vangogh2photo, maps, cityscapes, facades, iphone2dslr_flower, ae_photos
 
