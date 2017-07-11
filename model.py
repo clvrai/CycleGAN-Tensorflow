@@ -13,26 +13,26 @@ from utils import logger
 
 class HistoryQueue(object):
     def __init__(self, shape=[128,128,3], size=50):
-        self.size = size
-        self.shape = shape
-        self.count = 0
-        self.queue = []
+        self._size = size
+        self._shape = shape
+        self._count = 0
+        self._queue = []
 
     def query(self, image):
         if len(image.shape) == 3:
             image = np.expand_dims(image, axis=0)
-        if self.size == 0:
+        if self._size == 0:
             return image
-        if self.count < self.size:
-            self.count += 1
-            self.queue.append(image)
+        if self._count < self._size:
+            self._count += 1
+            self._queue.append(image)
             return image
 
         p = random.random()
         if p > 0.5:
-            idx = random.randrange(0, self.size)
-            ret = self.queue[idx]
-            self.queue[idx] = image
+            idx = random.randrange(0, self._size)
+            ret = self._queue[idx]
+            self._queue[idx] = image
             return ret
         else:
             return image
@@ -40,31 +40,31 @@ class HistoryQueue(object):
 
 class CycleGAN(object):
     def __init__(self, args):
-        self.log_step = args.log_step
-        self.batch_size = args.batch_size
-        self.image_size = args.image_size
-        self.cycle_loss_coeff = args.cycle_loss_coeff
+        self._log_step = args.log_step
+        self._batch_size = args.batch_size
+        self._image_size = args.image_size
+        self._cycle_loss_coeff = args.cycle_loss_coeff
 
-        self.augment_size = self.image_size + (30 if self.image_size == 256 else 15)
-        self.image_shape = [self.image_size, self.image_size, 3]
+        self._augment_size = self._image_size + (30 if self._image_size == 256 else 15)
+        self._image_shape = [self._image_size, self._image_size, 3]
 
         self.is_train = tf.placeholder(tf.bool, name='is_train')
         self.lr = tf.placeholder(tf.float32, name='lr')
         self.global_step = tf.contrib.framework.get_or_create_global_step(graph=None)
 
         image_a = self.image_a = \
-            tf.placeholder(tf.float32, [self.batch_size] + self.image_shape, name='image_a')
+            tf.placeholder(tf.float32, [self._batch_size] + self._image_shape, name='image_a')
         image_b = self.image_b = \
-            tf.placeholder(tf.float32, [self.batch_size] + self.image_shape, name='image_b')
+            tf.placeholder(tf.float32, [self._batch_size] + self._image_shape, name='image_b')
         history_fake_a = self.history_fake_a = \
-            tf.placeholder(tf.float32, [None] + self.image_shape, name='history_fake_a')
+            tf.placeholder(tf.float32, [None] + self._image_shape, name='history_fake_a')
         history_fake_b = self.history_fake_b = \
-            tf.placeholder(tf.float32, [None] + self.image_shape, name='history_fake_b')
+            tf.placeholder(tf.float32, [None] + self._image_shape, name='history_fake_b')
 
         # Data augmentation
         def augment_image(image):
-            image = tf.image.resize_images(image, [self.augment_size, self.augment_size])
-            image = tf.random_crop(image, [self.batch_size] + self.image_shape)
+            image = tf.image.resize_images(image, [self._augment_size, self._augment_size])
+            image = tf.random_crop(image, [self._batch_size] + self._image_shape)
             image = tf.map_fn(tf.image.random_flip_left_right, image)
             return image
 
@@ -77,9 +77,9 @@ class CycleGAN(object):
 
         # Generator
         G_ab = Generator('G_ab', is_train=self.is_train,
-                         norm='instance', activation='relu', image_size=self.image_size)
+                         norm='instance', activation='relu', image_size=self._image_size)
         G_ba = Generator('G_ba', is_train=self.is_train,
-                         norm='instance', activation='relu', image_size=self.image_size)
+                         norm='instance', activation='relu', image_size=self._image_size)
 
         # Discriminator
         D_a = Discriminator('D_a', is_train=self.is_train,
@@ -114,7 +114,7 @@ class CycleGAN(object):
         # L1 norm for reconstruction error
         loss_rec_aba = tf.reduce_mean(tf.abs(image_a - image_aba))
         loss_rec_bab = tf.reduce_mean(tf.abs(image_b - image_bab))
-        loss_cycle = args.cycle_loss_coeff * (loss_rec_aba + loss_rec_bab)
+        loss_cycle = self._cycle_loss_coeff * (loss_rec_aba + loss_rec_bab)
 
         loss_G_ab_final = loss_G_ab + loss_cycle
         loss_G_ba_final = loss_G_ba + loss_cycle
@@ -160,16 +160,16 @@ class CycleGAN(object):
         logger.info('  {} images from B'.format(len(data_B)))
 
         data_size = min(len(data_A), len(data_B))
-        num_batch = data_size // self.batch_size
-        epoch_length = num_batch * self.batch_size
+        num_batch = data_size // self._batch_size
+        epoch_length = num_batch * self._batch_size
 
         num_initial_iter = 100
         num_decay_iter = 100
         lr = lr_initial = 0.0002
         lr_decay = lr_initial / num_decay_iter
 
-        history_a = HistoryQueue(shape=self.image_shape, size=50)
-        history_b = HistoryQueue(shape=self.image_shape, size=50)
+        history_a = HistoryQueue(shape=self._image_shape, size=50)
+        history_b = HistoryQueue(shape=self._image_shape, size=50)
 
         initial_step = sess.run(self.global_step)
         num_global_step = (num_initial_iter + num_decay_iter) * epoch_length
@@ -188,8 +188,8 @@ class CycleGAN(object):
                 random.shuffle(data_A)
                 random.shuffle(data_B)
 
-            image_a = np.stack(data_A[iter*self.batch_size:(iter+1)*self.batch_size])
-            image_b = np.stack(data_B[iter*self.batch_size:(iter+1)*self.batch_size])
+            image_a = np.stack(data_A[iter*self._batch_size:(iter+1)*self._batch_size])
+            image_b = np.stack(data_B[iter*self._batch_size:(iter+1)*self._batch_size])
             fake_a, fake_b = sess.run([self.image_ba, self.image_ab],
                                       feed_dict={self.image_a: image_a,
                                                  self.image_b: image_b,
@@ -201,7 +201,7 @@ class CycleGAN(object):
                        self.loss_G_ba, self.loss_cycle,
                        self.optimizer_D_a, self.optimizer_D_b,
                        self.optimizer_G_ab, self.optimizer_G_ba]
-            if step % self.log_step == 0:
+            if step % self._log_step == 0:
                 fetches += [self.summary_op]
 
             fetched = sess.run(fetches, feed_dict={self.image_a: image_a,
@@ -211,7 +211,7 @@ class CycleGAN(object):
                                                    self.history_fake_a: fake_a,
                                                    self.history_fake_b: fake_b})
 
-            if step % self.log_step == 0:
+            if step % self._log_step == 0:
                 summary_writer.add_summary(fetched[-1], step)
                 summary_writer.flush()
                 t.set_description(
