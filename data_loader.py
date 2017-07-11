@@ -12,8 +12,9 @@ datasets = ['ae_photos', 'apple2orange', 'summer2winter_yosemite', 'horse2zebra'
 
 def read_image(path):
     image = imread(path)
-    assert len(image.shape) == 3
-    assert image.shape[2] == 3
+    if len(image.shape) != 3 or image.shape[2] != 3:
+        print('Wrong image {} with shape {}'.format(path, image.shape))
+        return None
 
     # range of pixel values = [-1.0, 1.0]
     image = image.astype(np.float32) / 255.0
@@ -26,7 +27,12 @@ def read_images(base_dir):
         data_dir = os.path.join(base_dir, dir_name)
         paths = glob(os.path.join(data_dir, '*.jpg'))
         print('# images in {}: {}'.format(data_dir, len(paths)))
-        images = [read_image(path) for path in tqdm(paths)]
+
+        images = []
+        for path in tqdm(paths):
+            image = read_image(path)
+            if image is not None:
+                images.append(image)
         ret.append((dir_name, images))
     return ret
 
