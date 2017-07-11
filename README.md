@@ -44,6 +44,10 @@ $ python cycle-gan.py --task apple2orange --image_size 256
 $ tensorboard --logdir=./logs
 ```
 
+> **Carefully check Tensorboard for the first 1000 iterations. You need to run the experiment again if dark and bright regions are reversed like the exmaple below. This GAN implementation is sensitive to the initialization.**
+
+![wrong-example](assets/wrong-initialization.png)
+
 ## Results
 
 ### apple2orange
