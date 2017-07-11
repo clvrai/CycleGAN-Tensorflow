@@ -28,7 +28,7 @@ def _norm(input, is_train, reuse=True, norm=None):
     return out
 
 def _activation(input, activation=None):
-    assert activation in ['reul', 'leaky', 'tanh', 'sigmoid', None]
+    assert activation in ['relu', 'leaky', 'tanh', 'sigmoid', None]
     if activation == 'relu':
         return tf.nn.relu(input)
     elif activation == 'leaky':
