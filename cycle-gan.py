@@ -10,9 +10,6 @@ from data_loader import get_data
 from model import CycleGAN
 from utils import logger, makedirs
 
-# setting the GPU #
-os.environ['CUDA_DEVICE_ORDER'] = "PCI_BUS_ID"
-os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 
 # parsing cmd arguments
 parser = argparse.ArgumentParser(description="Run commands")
