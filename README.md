@@ -8,9 +8,11 @@ This project is implemented by [Youngwoon Lee](https://github.com/youngwoon) and
 
 This repo is a [Tensorflow](https://www.tensorflow.org/) implementation of CycleGAN on Pix2Pix datasets: [Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks](https://arxiv.org/abs/1703.10593).
 
-This paper presents a framework for converting an image from one domain (e.g., zebra) to another domain (e.g., horse) and vice versa. It transforms a given image by finding an one-to-one mapping between unpaired data from two domains.
+This paper presents a framework addressing the **image-to-image translation** task, where we are interested in converting an image from one domain (e.g., zebra) to another domain (e.g., horse). It transforms a given image by finding an one-to-one mapping between unpaired data from two domains.
 
-The framework consists of two generators (*G[a-b]*, *G[b-a]*) and two discriminators (*D[a]*, *D[b]*). The generator *G[a-b]* (*G[b-a]*) converts an image in domain *a* (*b*) to that of domain *b* (*a*) and the discriminator *D[a]* (*D[b]*) verifies whether the given image is an image from domain *a* (*b*) or not. When training these two pairs of GANs, the cycle-consistent loss, which is a sum of reconstruction errors (*a-b-a* and *b-a-b*), is added to the adversarial loss. Without one-to-one mapping between two domains *a* and *b*, the framework cannot reconstruct original image and it leads to the large cycle-consistent loss. Therefore, the cycle-consistent loss prevents the mode collapse problem by imposing one-to-one mapping between two domains.
+The framework consists of two generators and two discriminators. Generator *G_ab* aims to translate an image in domain *a* (a zebra) to its domain *b* version (a horse); while generator *G_ba* aims to translate an image in domain *b* to its domain *a* version. On the other hand, discriminator *D_a* verifies whether given images are in domain *a* or not; so does discriminator *D_b*. 
+
+Therefore, the entire frameowrk consists of two loops of GANs which are trained to perform image-to-image translation *a*->*b*->*a* and *b*->*a*->*b*. When training these GANs, a cycle-consistent loss, which is a sum of reconstruction errors (*a*->*b*->*a* and *b*->*a*->*b*), is added to the adversarial loss. Without one-to-one mapping between two domains *a* and *b*, the framework cannot reconstruct original image and it leads to the large cycle-consistent loss. Therefore, the cycle-consistent loss alleviates the issue of mode collapse by imposing one-to-one mapping between two domains.
 
 ![paper-figure](assets/paper-figure.png)
 
